@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>繁體中文輸入法實驗流程</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .step-header {
+            background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+            margin-bottom: 25px;
+        }
+        
+        .step-title {
+            font-size: 1.4em;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .step-description {
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background: #229954;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .assignment-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .assignment-title {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .phase-info {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .phase-title {
+            color: #2980b9;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .task-info {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .task-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .task-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+        
+        .progress-bar {
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            height: 20px;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .summary-card {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #ffeaa7 0%, #fed6e3 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #f39c12;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>繁體中文輸入法比較實驗</h1>
+            <p>Gboard vs Kboard 效能評估系統</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- 步驟 1: 受試者資訊 -->
+            <div class="step active" id="step1">
+                <div class="step-header">
+                    <div class="step-title">步驟 1: 受試者資訊設定</div>
+                    <div class="step-description">請填入基本資訊，系統將自動分配實驗組別</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="participantId">受試者編號：</label>
+                    <input type="text" id="participantId" placeholder="例：P001" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="participantAge">年齡：</label>
+                    <input type="number" id="participantAge" min="18" max="80" placeholder="25">
+                </div>
+                
+                <div class="form-group">
+                    <label for="typingExperience">中文打字經驗（年）：</label>
+                    <select id="typingExperience">
+                        <option value="">請選擇</option>
+                        <option value="0-1">0-1年</option>
+                        <option value="2-5">2-5年</option>
+                        <option value="6-10">6-10年</option>
+                        <option value="10+">10年以上</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="primaryKeyboard">主要使用的輸入法：</label>
+                    <select id="primaryKeyboard">
+                        <option value="">請選擇</option>
+                        <option value="gboard">Gboard</option>
+                        <option value="kboard">Kboard</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                
+                <div class="navigation">
+                    <div></div>
+                    <button class="btn btn-success" onclick="setupExperiment()">開始實驗設定</button>
+                </div>
+            </div>
+            
+            <!-- 步驟 2: 實驗分配結果 -->
+            <div class="step" id="step2">
+                <div class="step-header">
+                    <div class="step-title">步驟 2: 實驗分配結果</div>
+                    <div class="step-description">系統已為您隨機分配實驗組別和題目</div>
+                </div>
+                
+                <div class="assignment-card">
+                    <div class="assignment-title">🎯 您的實驗分配</div>
+                    <div id="assignmentInfo"></div>
+                </div>
+                
+                <div class="summary-card">
+                    <h4>📋 實驗流程總覽</h4>
+                    <div id="experimentSummary"></div>
+                </div>
+                
+                <div class="navigation">
+                    <button class="btn btn-secondary" onclick="showStep(1)">返回修改</button>
+                    <button class="btn btn-success" onclick="startPhase1()">開始階段1</button>
+                </div>
+            </div>
+            
+            <!-- 步驟 3: 階段1 執行 -->
+            <div class="step" id="step3">
+                <div class="step-header">
+                    <div class="step-title">階段 1: 新題目測試</div>
+                    <div class="step-description">基礎輸入效率測量 - 每題做1次</div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="phase1Progress" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="phase1ProgressText">進度: 0/2 完成</div>
+                
+                <div id="phase1Tasks"></div>
+                
+                <div class="navigation">
+                    <button class="btn btn-secondary" onclick="showStep(2)">返回設定</button>
+                    <button class="btn btn-success" id="phase1NextBtn" onclick="startPhase2()" style="display: none;">進入階段2</button>
+                </div>
+            </div>
+            
+            <!-- 步驟 4: 階段2 執行 -->
+            <div class="step" id="step4">
+                <div class="step-header">
+                    <div class="step-title">階段 2: 重複題目測試</div>
+                    <div class="step-description">學習效果測量 - 每題做4次</div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="phase2Progress" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="phase2ProgressText">進度: 0/8 完成</div>
+                
+                <div id="phase2Tasks"></div>
+                
+                <div class="navigation">
+                    <button class="btn btn-secondary" onclick="showStep(3)">返回階段1</button>
+                    <button class="btn btn-success" id="phase2NextBtn" onclick="completeExperiment()" style="display: none;">完成實驗</button>
+                </div>
+            </div>
+            
+            <!-- 步驟 5: 實驗完成 -->
+            <div class="step" id="step5">
+                <div class="step-header">
+                    <div class="step-title">🎉 實驗完成</div>
+                    <div class="step-description">感謝您的參與！</div>
+                </div>
+                
+                <div class="assignment-card">
+                    <div class="assignment-title">📊 實驗總結</div>
+                    <div id="completionSummary"></div>
+                </div>
+                
+                <div class="highlight">
+                    <strong>📁 數據收集：</strong>
+                    <p>所有實驗數據已通過 WebTEM 自動記錄並發送至研究信箱。請確認您已完成所有測試階段。</p>
+                </div>
+                
+                <div class="navigation">
+                    <button class="btn btn-secondary" onclick="location.reload()">重新開始</button>
+                    <button class="btn btn-success" onclick="downloadResults()">下載實驗記錄</button>
+                </div>
+            </div>
+            
+            <!-- 狀態訊息 -->
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+    </div>
+
+    <script>
+        // 全域變數
+        let experimentData = {
+            participantInfo: {},
+            assignment: {},
+            progress: {
+                phase1: { completed: 0, total: 2 },
+                phase2: { completed: 0, total: 8 }
+            },
+            taskUrls: [
+                'https://kolotw.github.io/kboardex/tasks/task01.txt',
+                'https://kolotw.github.io/kboardex/tasks/task02.txt',
+                'https://kolotw.github.io/kboardex/tasks/task03.txt',
+                'https://kolotw.github.io/kboardex/tasks/task04.txt',
+                'https://kolotw.github.io/kboardex/tasks/task05.txt',
+                'https://kolotw.github.io/kboardex/tasks/task06.txt',
+                'https://kolotw.github.io/kboardex/tasks/task07.txt',
+                'https://kolotw.github.io/kboardex/tasks/task08.txt'
+            ],
+            webtemUrl: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=fftttttt&o=ffffttfffttffffftf'
+        };
+
+        // 顯示指定步驟
+        function showStep(stepNumber) {
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+        }
+
+        // 顯示狀態訊息
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message status-${type}`;
+            statusEl.style.opacity = '1';
+            
+            setTimeout(() => {
+                statusEl.style.opacity = '0';
+            }, 3000);
+        }
+
+        // 隨機分配實驗組別和題目
+        function setupExperiment() {
+            // 驗證表單
+            const participantId = document.getElementById('participantId').value.trim();
+            const age = document.getElementById('participantAge').value;
+            const experience = document.getElementById('typingExperience').value;
+            const primaryKeyboard = document.getElementById('primaryKeyboard').value;
+
+            if (!participantId || !age || !experience || !primaryKeyboard) {
+                showStatus('請填寫所有必填欄位', 'error');
+                return;
+            }
+
+            // 儲存受試者資訊
+            experimentData.participantInfo = {
+                id: participantId,
+                age: parseInt(age),
+                experience: experience,
+                primaryKeyboard: primaryKeyboard,
+                timestamp: new Date().toISOString()
+            };
+
+            // 隨機分配組別 (A組或B組)
+            const isGroupA = Math.random() < 0.5;
+            
+            // 隨機選擇題目組別
+            const allTasks = [0, 1, 2, 3, 4, 5, 6, 7]; // 對應task01-task08
+            const shuffled = shuffleArray([...allTasks]);
+            
+            const phase1Tasks = shuffled.slice(0, 2); // 階段1用2組
+            const phase2Tasks = shuffled.slice(2, 4); // 階段2用2組
+
+            experimentData.assignment = {
+                group: isGroupA ? 'A' : 'B',
+                inputMethodOrder: isGroupA ? ['Gboard', 'Kboard'] : ['Kboard', 'Gboard'],
+                phase1: {
+                    tasks: phase1Tasks,
+                    sessions: [
+                        { inputMethod: isGroupA ? 'Gboard' : 'Kboard', taskGroup: phase1Tasks[0] },
+                        { inputMethod: isGroupA ? 'Kboard' : 'Gboard', taskGroup: phase1Tasks[1] }
+                    ]
+                },
+                phase2: {
+                    tasks: phase2Tasks,
+                    sessions: [
+                        { inputMethod: isGroupA ? 'Gboard' : 'Kboard', taskGroup: phase2Tasks[0], repeats: 4 },
+                        { inputMethod: isGroupA ? 'Kboard' : 'Gboard', taskGroup: phase2Tasks[1], repeats: 4 }
+                    ]
+                }
+            };
+
+            displayAssignment();
+            showStep(2);
+            showStatus('實驗分配完成！', 'success');
+        }
+
+        // 顯示分配結果
+        function displayAssignment() {
+            const assignment = experimentData.assignment;
+            const assignmentInfo = document.getElementById('assignmentInfo');
+            const experimentSummary = document.getElementById('experimentSummary');
+
+            assignmentInfo.innerHTML = `
+                <p><strong>🎯 實驗組別:</strong> ${assignment.group}組</p>
+                <p><strong>📱 輸入法順序:</strong> ${assignment.inputMethodOrder.join(' → ')}</p>
+                <p><strong>🔢 受試者編號:</strong> ${experimentData.participantInfo.id}</p>
+            `;
+
+            experimentSummary.innerHTML = `
+                <div class="phase-info">
+                    <div class="phase-title">階段1: 新題目測試</div>
+                    <p>• S01: ${assignment.phase1.sessions[0].inputMethod} - Task ${(assignment.phase1.sessions[0].taskGroup + 1).toString().padStart(2, '0')} (10題 × 1次)</p>
+                    <p>• S02: ${assignment.phase1.sessions[1].inputMethod} - Task ${(assignment.phase1.sessions[1].taskGroup + 1).toString().padStart(2, '0')} (10題 × 1次)</p>
+                </div>
+                <div class="phase-info">
+                    <div class="phase-title">階段2: 重複題目測試</div>
+                    <p>• S03-S06: ${assignment.phase2.sessions[0].inputMethod} - Task ${(assignment.phase2.sessions[0].taskGroup + 1).toString().padStart(2, '0')} (10題 × 4次)</p>
+                    <p>• S07-S10: ${assignment.phase2.sessions[1].inputMethod} - Task ${(assignment.phase2.sessions[1].taskGroup + 1).toString().padStart(2, '0')} (10題 × 4次)</p>
+                </div>
+            `;
+        }
+
+        // 開始階段1
+        function startPhase1() {
+            const phase1Tasks = document.getElementById('phase1Tasks');
+            const sessions = experimentData.assignment.phase1.sessions;
+
+            phase1Tasks.innerHTML = sessions.map((session, index) => `
+                <div class="task-info">
+                    <h4>S${index + 1}: ${session.inputMethod} 注音輸入</h4>
+                    <p>📝 使用題目：Task ${(session.taskGroup + 1).toString().padStart(2, '0')} (10題，每題做1次)</p>
+                    <p>⚠️ 請確保已切換到 <strong>${session.inputMethod}</strong> 輸入法</p>
+                    <button class="task-btn" onclick="copyTaskAndOpenWebTEM(${session.taskGroup}, ${index})">
+                        📋 複製題目並開始測試
+                    </button>
+                    <button class="btn btn-success" onclick="completeSession(1, ${index})" style="margin-left: 10px;">
+                        ✅ 完成此階段
+                    </button>
+                </div>
+            `).join('');
+
+            showStep(3);
+            updateProgress(1);
+        }
+
+        // 開始階段2
+        function startPhase2() {
+            const phase2Tasks = document.getElementById('phase2Tasks');
+            const sessions = experimentData.assignment.phase2.sessions;
+
+            phase2Tasks.innerHTML = sessions.map((session, sessionIndex) => {
+                const sessionNumbers = sessionIndex === 0 ? 'S03-S06' : 'S07-S10';
+                return `
+                    <div class="task-info">
+                        <h4>${sessionNumbers}: ${session.inputMethod} 注音輸入</h4>
+                        <p>📝 使用題目：Task ${(session.taskGroup + 1).toString().padStart(2, '0')} (10題，每題做4次)</p>
+                        <p>⚠️ 請確保已切換到 <strong>${session.inputMethod}</strong> 輸入法</p>
+                        <p>🔄 需要重複測試 4 次，每次點擊按鈕複製題目：</p>
+                        <div style="margin: 10px 0;">
+                            ${Array.from({length: 4}, (_, repeatIndex) => `
+                                <button class="task-btn" onclick="copyTaskAndOpenWebTEM(${session.taskGroup}, 'phase2_${sessionIndex}_${repeatIndex}')" style="margin: 2px;">
+                                    📋 第${repeatIndex + 1}次測試
+                                </button>
+                            `).join('')}
+                        </div>
+                        <button class="btn btn-success" onclick="completeSession(2, ${sessionIndex})" style="margin-top: 10px;">
+                            ✅ 完成此階段 (4次測試)
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            showStep(4);
+            updateProgress(2);
+        }
+
+        // 複製題目並開啟WebTEM
+        async function copyTaskAndOpenWebTEM(taskIndex, sessionId) {
+            try {
+                showStatus('正在載入題目...', 'info');
+                
+                const response = await fetch(experimentData.taskUrls[taskIndex]);
+                const textContent = await response.text();
+                
+                await navigator.clipboard.writeText(textContent.trim());
+                
+                showStatus(`✅ Task ${(taskIndex + 1).toString().padStart(2, '0')} 已複製到剪貼簿！請到WebTEM貼上`, 'success');
+                
+                // 開啟WebTEM
+                window.open(experimentData.webtemUrl, '_blank');
+                
+            } catch (error) {
+                showStatus('❌ 複製失敗，請手動複製題目', 'error');
+                console.error('Copy failed:', error);
+            }
+        }
+
+        // 完成階段
+        function completeSession(phase, sessionIndex) {
+            experimentData.progress[`phase${phase}`].completed++;
+            updateProgress(phase);
+            
+            if (phase === 1 && experimentData.progress.phase1.completed >= 2) {
+                document.getElementById('phase1NextBtn').style.display = 'inline-block';
+                showStatus('階段1完成！請進入階段2', 'success');
+            } else if (phase === 2 && experimentData.progress.phase2.completed >= 2) {
+                document.getElementById('phase2NextBtn').style.display = 'inline-block';
+                showStatus('階段2完成！實驗即將結束', 'success');
+            }
+        }
+
+        // 更新進度條
+        function updateProgress(phase) {
+            const progress = experimentData.progress[`phase${phase}`];
+            const percentage = (progress.completed / progress.total) * 100;
+            
+            document.getElementById(`phase${phase}Progress`).style.width = `${percentage}%`;
+            document.getElementById(`phase${phase}ProgressText`).textContent = 
+                `進度: ${progress.completed}/${progress.total} 完成`;
+        }
+
+        // 完成實驗
+        function completeExperiment() {
+            const completionSummary = document.getElementById('completionSummary');
+            const endTime = new Date().toISOString();
+            
+            experimentData.completionTime = endTime;
+            
+            completionSummary.innerHTML = `
+                <p><strong>👤 受試者:</strong> ${experimentData.participantInfo.id}</p>
+                <p><strong>🎯 實驗組別:</strong> ${experimentData.assignment.group}組</p>
+                <p><strong>📱 輸入法順序:</strong> ${experimentData.assignment.inputMethodOrder.join(' → ')}</p>
+                <p><strong>✅ 完成階段:</strong> 階段1 (${experimentData.progress.phase1.completed}/2) + 階段2 (${experimentData.progress.phase2.completed}/2)</p>
+                <p><strong>⏰ 完成時間:</strong> ${new Date(endTime).toLocaleString('zh-TW')}</p>
+            `;
+            
+            showStep(5);
+            showStatus('🎉 實驗成功完成！', 'success');
+        }
+
+        // 下載實驗記錄
+        function downloadResults() {
+            const data = JSON.stringify(experimentData, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `experiment_${experimentData.participantInfo.id}_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('📁 實驗記錄已下載', 'success');
+        }
+
+        // 陣列隨機排列
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 檢查剪貼簿支援
+        if (!navigator.clipboard) {
+            document.addEventListener('DOMContentLoaded', function() {
+                showStatus('⚠️ 此瀏覽器不支援自動複製功能，請手動複製題目', 'error');
+            });
+        }
+    </script>
+</body>
+</html>
