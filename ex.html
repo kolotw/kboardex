@@ -316,26 +316,7 @@
                     <input type="number" id="participantAge" min="18" max="80" placeholder="25">
                 </div>
                 
-                <div class="form-group">
-                    <label for="typingExperience">中文打字經驗（年）：</label>
-                    <select id="typingExperience">
-                        <option value="">請選擇</option>
-                        <option value="0-1">0-1年</option>
-                        <option value="2-5">2-5年</option>
-                        <option value="6-10">6-10年</option>
-                        <option value="10+">10年以上</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="primaryKeyboard">主要使用的輸入法：</label>
-                    <select id="primaryKeyboard">
-                        <option value="">請選擇</option>
-                        <option value="gboard">Gboard</option>
-                        <option value="kboard">Kboard</option>
-                        <option value="other">其他</option>
-                    </select>
-                </div>
+
                 
                 <div class="navigation">
                     <div></div>
@@ -474,15 +455,13 @@
             }, 3000);
         }
 
-        // 隨機分配實驗組別和題目
+        // 設定實驗
         function setupExperiment() {
             // 驗證表單
             const participantId = document.getElementById('participantId').value.trim();
             const age = document.getElementById('participantAge').value;
-            const experience = document.getElementById('typingExperience').value;
-            const primaryKeyboard = document.getElementById('primaryKeyboard').value;
 
-            if (!participantId || !age || !experience || !primaryKeyboard) {
+            if (!participantId || !age) {
                 showStatus('請填寫所有必填欄位', 'error');
                 return;
             }
@@ -491,8 +470,6 @@
             experimentData.participantInfo = {
                 id: participantId,
                 age: parseInt(age),
-                experience: experience,
-                primaryKeyboard: primaryKeyboard,
                 timestamp: new Date().toISOString()
             };
 
@@ -674,21 +651,48 @@
             showStatus('🎉 實驗成功完成！', 'success');
         }
 
-        // 下載實驗記錄
+        // 下載實驗記錄為CSV檔案
         function downloadResults() {
-            const data = JSON.stringify(experimentData, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
+            // 準備CSV數據
+            const csvData = [
+                // CSV標題行
+                ['欄位', '數值'],
+                ['受試者編號', experimentData.participantInfo.id],
+                ['年齡', experimentData.participantInfo.age],
+                ['實驗組別', experimentData.assignment.group],
+                ['輸入法順序', experimentData.assignment.inputMethodOrder.join(' → ')],
+                ['開始時間', experimentData.participantInfo.timestamp],
+                ['完成時間', experimentData.completionTime || '未完成'],
+                ['階段1進度', `${experimentData.progress.phase1.completed}/${experimentData.progress.phase1.total}`],
+                ['階段2進度', `${experimentData.progress.phase2.completed}/${experimentData.progress.phase2.total}`],
+                ['階段1-S01輸入法', experimentData.assignment.phase1.sessions[0].inputMethod],
+                ['階段1-S01題目組', `Task${(experimentData.assignment.phase1.sessions[0].taskGroup + 1).toString().padStart(2, '0')}`],
+                ['階段1-S02輸入法', experimentData.assignment.phase1.sessions[1].inputMethod],
+                ['階段1-S02題目組', `Task${(experimentData.assignment.phase1.sessions[1].taskGroup + 1).toString().padStart(2, '0')}`],
+                ['階段2-S03-06輸入法', experimentData.assignment.phase2.sessions[0].inputMethod],
+                ['階段2-S03-06題目組', `Task${(experimentData.assignment.phase2.sessions[0].taskGroup + 1).toString().padStart(2, '0')}`],
+                ['階段2-S07-10輸入法', experimentData.assignment.phase2.sessions[1].inputMethod],
+                ['階段2-S07-10題目組', `Task${(experimentData.assignment.phase2.sessions[1].taskGroup + 1).toString().padStart(2, '0')}`]
+            ];
+            
+            // 轉換為CSV格式
+            const csvContent = csvData.map(row => 
+                row.map(cell => `"${cell}"`).join(',')
+            ).join('\n');
+            
+            // 加入BOM以確保Excel正確顯示中文
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             
             const a = document.createElement('a');
             a.href = url;
-            a.download = `experiment_${experimentData.participantInfo.id}_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `experiment_${experimentData.participantInfo.id}_${new Date().toISOString().split('T')[0]}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            showStatus('📁 實驗記錄已下載', 'success');
+            showStatus('📁 實驗記錄已下載為CSV檔案', 'success');
         }
 
         // 陣列隨機排列
