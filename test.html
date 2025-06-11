@@ -88,15 +88,24 @@
             background: #3498db;
             color: white;
             padding: 10px 15px;
-            text-decoration: none;
+            border: none;
+            cursor: pointer;
             border-radius: 8px;
             text-align: center;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            font-family: inherit;
+            font-size: 14px;
         }
         
         .task-link:hover {
             background: #2980b9;
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        .task-link:active {
+            transform: translateY(0);
         }
         
         .metrics-list {
@@ -167,15 +176,17 @@
         <p>實驗使用 80 題繁體中文句子，分為 8 組（每組 10 題）：</p>
         
         <div class="task-links">
-            <a href="https://kolotw.github.io/kboardex/tasks/task01.txt" target="_blank" class="task-link">Task 01</a>
-            <a href="https://kolotw.github.io/kboardex/tasks/task02.txt" target="_blank" class="task-link">Task 02</a>
-            <a href="https://kolotw.github.io/kboardex/tasks/task03.txt" target="_blank" class="task-link">Task 03</a>
-            <a href="https://kolotw.github.io/kboardex/tasks/task04.txt" target="_blank" class="task-link">Task 04</a>
-            <a href="https://kolotw.github.io/kboardex/tasks/task05.txt" target="_blank" class="task-link">Task 05</a>
-            <a href="https://kolotw.github.io/kboardex/tasks/task06.txt" target="_blank" class="task-link">Task 06</a>
-            <a href="https://kolotw.github.io/kboardex/tasks/task07.txt" target="_blank" class="task-link">Task 07</a>
-            <a href="https://kolotw.github.io/kboardex/tasks/task08.txt" target="_blank" class="task-link">Task 08</a>
+            <button onclick="copyTaskContent(1)" class="task-link">Task 01 📋</button>
+            <button onclick="copyTaskContent(2)" class="task-link">Task 02 📋</button>
+            <button onclick="copyTaskContent(3)" class="task-link">Task 03 📋</button>
+            <button onclick="copyTaskContent(4)" class="task-link">Task 04 📋</button>
+            <button onclick="copyTaskContent(5)" class="task-link">Task 05 📋</button>
+            <button onclick="copyTaskContent(6)" class="task-link">Task 06 📋</button>
+            <button onclick="copyTaskContent(7)" class="task-link">Task 07 📋</button>
+            <button onclick="copyTaskContent(8)" class="task-link">Task 08 📋</button>
         </div>
+        
+        <div id="copyStatus" style="text-align: center; margin: 10px 0; font-weight: bold; opacity: 0; transition: opacity 0.3s;"></div>
 
         <h2>👥 受試者分組（平衡設計）</h2>
         <div class="group-comparison">
@@ -245,6 +256,19 @@
             </ul>
         </div>
 
+        <h2>🌐 實驗平台</h2>
+        <div class="highlight">
+            <h4>📝 WebTEM 實驗連結：</h4>
+            <a href="http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=fftttttt&o=ffffttfffttffffftf" 
+               target="_blank" 
+               style="display: inline-block; background: #e74c3c; color: white; padding: 15px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 10px 0;">
+               🚀 開始實驗 (WebTEM)
+            </a>
+            <p style="margin-top: 15px; font-size: 14px; color: #666;">
+                ⚠️ 此連結已預先設定實驗參數，包含測量指標和選項配置
+            </p>
+        </div>
+
         <h2>💻 技術需求</h2>
         <div class="requirements">
             <h4>硬體需求：</h4>
@@ -252,12 +276,19 @@
                 <li><span class="important">藍芽鍵盤</span>（統一硬體環境）</li>
                 <li>Android 手機或平板</li>
                 <li>穩定的桌面環境</li>
+                <li>穩定的網路連線（WebTEM 需要）</li>
             </ul>
         </div>
 
         <div class="tech-note">
             <h4>🔧 技術創新：</h4>
-            <p>使用藍芽鍵盤解決虛擬鍵盤無法監聽按鍵事件的問題，讓網頁能夠精確捕捉每個按鍵的時間戳記，實現類似 webTEM 的精確測量功能。</p>
+            <p>結合 <strong>WebTEM 平台</strong>與<strong>藍芽鍵盤</strong>的雙重優勢：</p>
+            <ul>
+                <li>WebTEM 提供專業的文字輸入指標測量</li>
+                <li>藍芽鍵盤解決虛擬鍵盤無法監聽按鍵事件的問題</li>
+                <li>實現精確的按鍵時間戳記和 International Metrics</li>
+                <li>自動生成詳細的效能分析報告</li>
+            </ul>
         </div>
 
         <h2>📈 預期成果</h2>
@@ -271,12 +302,68 @@
         <div class="highlight">
             <strong>💡 實驗創新點：</strong>
             <ul>
-                <li>首次使用藍芽鍵盤解決移動端精確按鍵測量問題</li>
+                <li>結合 WebTEM 專業平台與藍芽鍵盤的混合測量方案</li>
                 <li>平衡設計消除順序效應</li>
                 <li>分階段測試同時評估基礎效率與學習效果</li>
                 <li>專為繁體中文注音輸入法設計的評估框架</li>
+                <li>使用 International Metrics 精確測量非拉丁文字輸入</li>
             </ul>
         </div>
     </div>
+
+    <script>
+        // 複製題目內容到剪貼簿的函數
+        async function copyTaskContent(taskNumber) {
+            const taskUrl = `https://kolotw.github.io/kboardex/tasks/task${taskNumber.toString().padStart(2, '0')}.txt`;
+            const statusDiv = document.getElementById('copyStatus');
+            
+            try {
+                // 顯示載入中訊息
+                statusDiv.textContent = `正在載入 Task ${taskNumber.toString().padStart(2, '0')}...`;
+                statusDiv.style.opacity = '1';
+                statusDiv.style.color = '#3498db';
+                
+                // 取得文字內容
+                const response = await fetch(taskUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const textContent = await response.text();
+                
+                // 複製到剪貼簿
+                await navigator.clipboard.writeText(textContent.trim());
+                
+                // 顯示成功訊息
+                statusDiv.textContent = `✅ Task ${taskNumber.toString().padStart(2, '0')} 內容已複製到剪貼簿！`;
+                statusDiv.style.color = '#27ae60';
+                
+                // 3秒後隱藏訊息
+                setTimeout(() => {
+                    statusDiv.style.opacity = '0';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('複製失敗:', error);
+                // 顯示錯誤訊息
+                statusDiv.textContent = `❌ 複製失敗：${error.message}`;
+                statusDiv.style.color = '#e74c3c';
+                
+                // 5秒後隱藏錯誤訊息
+                setTimeout(() => {
+                    statusDiv.style.opacity = '0';
+                }, 5000);
+            }
+        }
+        
+        // 檢查瀏覽器是否支援剪貼簿API
+        if (!navigator.clipboard) {
+            document.addEventListener('DOMContentLoaded', function() {
+                const statusDiv = document.getElementById('copyStatus');
+                statusDiv.textContent = '⚠️ 此瀏覽器不支援自動複製功能，請手動點擊連結查看內容';
+                statusDiv.style.opacity = '1';
+                statusDiv.style.color = '#f39c12';
+            });
+        }
+    </script>
 </body>
 </html>
