@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>KBOARD 實驗任務頁</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #fff; }
+    h1, h2 { text-align: center; }
+    .task-container { max-width: 700px; margin: 0 auto; }
+    .sentence-group { border: 1px solid #ccc; padding: 1rem; margin: 1.5rem 0; border-radius: 5px; background: #f9f9f9; position: relative; display: flex; align-items: center; justify-content: space-between; }
+    .copy-btn { padding: 0.6rem 1.2rem; cursor: pointer; background: #007BFF; color: white; border: none; border-radius: 4px; font-size: 1rem; }
+    .link-btn { display: block; width: fit-content; margin: 2rem auto; padding: 1rem 2rem; background: #28a745; color: white; border-radius: 5px; text-decoration: none; }
+    .section-title { background: #eee; padding: 0.5rem; margin-top: 2rem; font-weight: bold; }
+    #user-input { text-align: center; margin-bottom: 2rem; }
+    .checkbox-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="task-container">
+    <h1>KBOARD 隨機任務頁面</h1>
+
+    <div id="user-input">
+      <input id="user-id" placeholder="請輸入學號">
+      <button onclick="assignAndLoad()">開始任務</button>
+      <div id="group-hint" style="margin-top: 1rem; font-weight: bold; color: #555;"></div>
+    </div>
+
+    <div class="section-title">階段一：新題目測試（系統順序依學號決定）</div>
+    <h2 id="gboard1-label">Gboard 測試（？）</h2>
+    <div id="gboard-phase1"></div>
+    <h2 id="kboard1-label">Kboard 測試（？）</h2>
+    <div id="kboard-phase1"></div>
+
+    <div class="section-title">階段二：重複題目測試（系統順序依學號決定）</div>
+    <h2 id="gboard2-label">Gboard 重複測試（？ × 4 輪）</h2>
+    <div id="gboard-phase2"></div>
+    <h2 id="kboard2-label">Kboard 重複測試（？ × 4 輪）</h2>
+    <div id="kboard-phase2"></div>
+  </div>
+
+  <script>
+    const allGroups = [
+      'G1.csv', 'G2.csv', 'G3.csv', 'G4.csv',
+      'G5.csv', 'G6.csv', 'G7.csv', 'G8.csv'
+    ];
+
+    function shuffle(arr) {
+      return arr.map(v => [Math.random(), v]).sort().map(p => p[1]);
+    }
+
+    function assignAndLoad() {
+      document.getElementById('group-hint').textContent = '';
+      const uid = document.getElementById('user-id').value.trim();
+      if (!uid) return alert("請輸入學號");
+
+      let saved = localStorage.getItem('kboard_user_' + uid);
+      let groupSet;
+      let isGroupA = parseInt(uid.slice(-1)) % 2 === 0; // A組：學號尾數為偶數，B組為奇數
+      if (saved) {
+        groupSet = JSON.parse(saved);
+      } else {
+        const shuffled = shuffle(allGroups);
+        if (isGroupA) {
+          groupSet = {
+            g1: shuffled[0], g2: shuffled[1], // Gboard -> Kboard
+            g3: shuffled[2], g4: shuffled[3]
+          };
+        } else {
+          groupSet = {
+            g1: shuffled[1], g2: shuffled[0], // Kboard -> Gboard
+            g3: shuffled[3], g4: shuffled[2]
+          };
+        }
+        localStorage.setItem('kboard_user_' + uid, JSON.stringify(groupSet));
+      }
+
+      document.getElementById('group-hint').textContent = isGroupA ? '您是 A 組（Gboard → Kboard）' : '您是 B 組（Kboard → Gboard）';
+
+      document.getElementById('gboard1-label').textContent = `Gboard 測試（${groupSet.g1.replace('.csv','')}）`;
+      document.getElementById('kboard1-label').textContent = `Kboard 測試（${groupSet.g2.replace('.csv','')}）`;
+      document.getElementById('gboard2-label').textContent = `Gboard 重複測試（${groupSet.g3.replace('.csv','')} × 4 輪）`;
+      document.getElementById('kboard2-label').textContent = `Kboard 重複測試（${groupSet.g4.replace('.csv','')} × 4 輪）`;
+
+      const base = 'https://kolotw.github.io/kboardex/tasks/';
+      loadCsvToDiv('gboard-phase1', base + groupSet.g1);
+      loadCsvToDiv('kboard-phase1', base + groupSet.g2);
+      loadCsvToDiv('gboard-phase2', base + groupSet.g3, 4);
+      loadCsvToDiv('kboard-phase2', base + groupSet.g4, 4);
+    }
+
+    function loadCsvToDiv(divId, csvUrl, repeat = 1) {
+      fetch(csvUrl)
+        .then(res => res.text())
+        .then(text => {
+          const lines = text.split(/\r?\n/).filter(l => l.trim());
+          const container = document.getElementById(divId);
+          container.innerHTML = '';
+          for (let r = 0; r < repeat; r++) {
+            for (let i = 0; i < lines.length; i += 10) {
+              const group = lines.slice(i, i + 10);
+              const div = document.createElement('div');
+              div.className = 'sentence-group';
+
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.disabled = true;
+              checkbox.style.transform = 'scale(1.3)';
+
+              const label = document.createElement('label');
+              label.className = 'checkbox-label';
+              label.appendChild(checkbox);
+              label.appendChild(document.createTextNode('已完成複製'));
+
+              const button = document.createElement('button');
+              button.className = 'copy-btn';
+              button.textContent = '複製10句';
+              button.onclick = () => {
+                navigator.clipboard.writeText(group.join("\n")).then(() => {
+                  checkbox.checked = true;
+                  const system = divId.includes('gboard') ? 'Gboard' : 'Kboard';
+                  alert(`已複製完成，請按下面的WebTEM按鈕，並在該頁貼上題目後進行測試。這次請使用${system}進行測試。`);
+                });
+              };
+
+              div.appendChild(label);
+              div.appendChild(button);
+              container.appendChild(div);
+            }
+          }
+
+          const link = document.createElement('a');
+          link.href = 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff';
+          link.className = 'link-btn';
+          link.target = '_blank';
+          link.textContent = '前往 WebTEM 輸入平台';
+          container.appendChild(link);
+        });
+    }
+  </script>
+</body>
+</html>
