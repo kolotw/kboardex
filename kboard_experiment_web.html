@@ -2,24 +2,72 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KBOARD 實驗任務頁</title>
   <style>
-    body { font-family: sans-serif; padding: 1rem; background: #fff; }
-    h1, h2 { text-align: center; }
-    .task-container { max-width: 100%; margin: 0 auto; padding: 0 1rem; }
-    .sentence-group { border: 1px solid #ccc; padding: 1rem; margin: 1.5rem 0; border-radius: 5px; background: #f9f9f9; position: relative; display: flex; align-items: center; justify-content: space-between; }
-    .copy-btn { padding: 0.6rem 1.2rem; cursor: pointer; background: #007BFF; color: white; border: none; border-radius: 4px; font-size: 1rem; }
-    .link-btn { display: block; width: fit-content; margin: 2rem auto; padding: 1rem 2rem; background: #28a745; color: white; border-radius: 5px; text-decoration: none; }
-    .section-title { background: #eee; padding: 0.5rem; margin-top: 2rem; font-weight: bold; }
-    #user-input { text-align: center; margin-bottom: 2rem; }
-    .checkbox-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
-    @media (max-width: 600px) {
-    h1, h2 { font-size: 1.2rem; }
-    .copy-btn { font-size: 0.9rem; padding: 0.5rem 1rem; }
-    .link-btn { font-size: 0.9rem; padding: 0.8rem 1.5rem; }
-    .sentence-group { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-  }
-</style>
+    body { font-family: sans-serif; padding: 1rem; background: #fff; margin: 0; }
+    h1, h2 { text-align: center; font-size: 1.2rem; margin: 1rem 0; }
+    .task-container { width: 100%; max-width: 480px; margin: 0 auto; padding: 0 1rem; }
+    .sentence-group {
+      border: 1px solid #ccc;
+      padding: 0.8rem;
+      margin: 1rem 0;
+      border-radius: 5px;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .copy-btn {
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      width: 100%;
+    }
+    .link-btn {
+      display: block;
+      width: 100%;
+      margin: 1.5rem auto;
+      padding: 1rem;
+      background: #28a745;
+      color: white;
+      border-radius: 5px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+    .section-title {
+      background: #eee;
+      padding: 0.5rem;
+      margin-top: 1.5rem;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    #user-input {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    #user-id {
+      width: 80%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    button {
+      font-size: 1rem;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
   <div class="task-container">
@@ -61,22 +109,18 @@
 
       let saved = localStorage.getItem('kboard_user_' + uid);
       let groupSet;
-      let isGroupA = parseInt(uid.slice(-1)) % 2 === 0; // A組：學號尾數為偶數，B組為奇數
+      let isGroupA = parseInt(uid.slice(-1)) % 2 === 0;
       if (saved) {
         groupSet = JSON.parse(saved);
       } else {
         const shuffled = shuffle(allGroups);
-        if (isGroupA) {
-          groupSet = {
-            g1: shuffled[0], g2: shuffled[1], // Gboard -> Kboard
-            g3: shuffled[2], g4: shuffled[3]
-          };
-        } else {
-          groupSet = {
-            g1: shuffled[1], g2: shuffled[0], // Kboard -> Gboard
-            g3: shuffled[3], g4: shuffled[2]
-          };
-        }
+        groupSet = isGroupA ? {
+          g1: shuffled[0], g2: shuffled[1],
+          g3: shuffled[2], g4: shuffled[3]
+        } : {
+          g1: shuffled[1], g2: shuffled[0],
+          g3: shuffled[3], g4: shuffled[2]
+        };
         localStorage.setItem('kboard_user_' + uid, JSON.stringify(groupSet));
       }
 
