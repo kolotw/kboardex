@@ -80,15 +80,15 @@
     </div>
 
     <div class="section-title">階段一：新題目測試（系統順序依學號決定）</div>
-    <h2 id="gboard1-label">Gboard 測試（？ × 5 輪）</h2>
+    <h2 id="gboard1-label">Gboard 測試（？）</h2>
     <div id="gboard-phase1"></div>
-    <h2 id="kboard1-label">Kboard 測試（？ × 5 輪）</h2>
+    <h2 id="kboard1-label">Kboard 測試（？）</h2>
     <div id="kboard-phase1"></div>
 
     <div class="section-title">階段二：重複題目測試（系統順序依學號決定）</div>
-    <h2 id="gboard2-label">Gboard 測試（？ × 2 輪）</h2>
+    <h2 id="gboard2-label">Gboard 重複測試（？ × 4 輪）</h2>
     <div id="gboard-phase2"></div>
-    <h2 id="kboard2-label">Kboard 測試（？ × 2 輪）</h2>
+    <h2 id="kboard2-label">Kboard 重複測試（？ × 4 輪）</h2>
     <div id="kboard-phase2"></div>
   </div>
 
@@ -128,14 +128,14 @@
 
       document.getElementById('gboard1-label').textContent = `Gboard 測試（${groupSet.g1.replace('.csv','')}）`;
       document.getElementById('kboard1-label').textContent = `Kboard 測試（${groupSet.g2.replace('.csv','')}）`;
-      document.getElementById('gboard2-label').textContent = `Gboard 測試（${groupSet.g3.replace('.csv','')} × 2 輪）`;
-      document.getElementById('kboard2-label').textContent = `Kboard 測試（${groupSet.g4.replace('.csv','')} × 2 輪）`;
+      document.getElementById('gboard2-label').textContent = `Gboard 重複測試（${groupSet.g3.replace('.csv','')} × 4 輪）`;
+      document.getElementById('kboard2-label').textContent = `Kboard 重複測試（${groupSet.g4.replace('.csv','')} × 4 輪）`;
 
       const base = 'https://kolotw.github.io/kboardex/tasks/';
-      loadCsvToDiv('gboard-phase1', base + groupSet.g1, 5);
-      loadCsvToDiv('kboard-phase1', base + groupSet.g2, 5);
-      loadCsvToDiv('gboard-phase2', base + groupSet.g3, 2);
-      loadCsvToDiv('kboard-phase2', base + groupSet.g4, 2);
+      loadCsvToDiv('gboard-phase1', base + groupSet.g1);
+      loadCsvToDiv('kboard-phase1', base + groupSet.g2);
+      loadCsvToDiv('gboard-phase2', base + groupSet.g3, 4);
+      loadCsvToDiv('kboard-phase2', base + groupSet.g4, 4);
     }
 
     function loadCsvToDiv(divId, csvUrl, repeat = 1) {
@@ -186,26 +186,6 @@
           container.appendChild(link);
         });
     }
-	const logUrl = "https://script.google.com/macros/s/AKfycbyFC5Qj-9tBEgkNCVH89ET4IiaGGUkg7v1cdppVWMDK1a35wJbGFA14DmwPnmlayN89/exec";
-
-function sendLog(userId, keyboard, session, phrase, input) {
-  fetch(logUrl, {
-    method: "POST",
-    body: JSON.stringify({
-      user_id: userId,
-      keyboard: keyboard,
-      session: session,
-      phrase: phrase,
-      input: input
-    }),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  }).then(res => res.text()).then(txt => {
-    console.log("Log uploaded:", txt);
-  });
-}
-
   </script>
 </body>
 </html>
