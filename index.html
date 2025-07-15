@@ -29,7 +29,8 @@ async function fetchTaskText(taskID) {
   const url = `${githubBase}${taskID}.csv`;
   const res = await fetch(url);
   const text = await res.text();
-  return text.split('\n').filter(line => line.trim()).slice(0, 10).join('\n');
+  return text.split("\\n").filter(line => line.trim()).slice(0, 24).join("\\n");
+
 }
 
 const taskTextCache = {};
@@ -102,8 +103,17 @@ async function generateTasks() {
 
       const copyBtn = document.createElement('button');
       copyBtn.textContent = '複製題目內容';
+
+      const checkmark = document.createElement('span');
+      checkmark.textContent = ' ✅';
+      checkmark.style.color = 'green';
+      checkmark.style.marginLeft = '8px';
+      checkmark.style.visibility = 'hidden';
       copyBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(taskText);
+        navigator.clipboard.writeText(taskText).then(() => {
+          checkmark.style.visibility = 'visible';
+          
+        });
       });
 
       const br = document.createElement('br');
@@ -117,6 +127,7 @@ async function generateTasks() {
 
       div.appendChild(title);
       div.appendChild(copyBtn);
+      div.appendChild(checkmark);
       div.appendChild(br);
       div.appendChild(br2);
       div.appendChild(link);
