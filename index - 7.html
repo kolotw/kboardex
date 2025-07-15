@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>實驗題目分派頁面</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; font-size: 16px; }
+    input, button { font-size: 1rem; }
+    input { padding: 0.5em; }
+    button { padding: 0.5em 1em; margin-left: 10px; }
+    .task { margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
+    .task h3 { margin-top: 0; font-size: 1.1rem; }
+    .link-btn { margin-top: 5px; display: inline-block; background: #007bff; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>輸入學號以獲得實驗題目</h1>
+  <input type="text" id="studentID" placeholder="請輸入學號">
+  <button onclick="generateTasks()">產生題目</button>
+  <div id="taskContainer"></div>
+
+<script>
+const tasks = ['G1','G2','G3','G4','G5','G6','G7','G8'];
+const githubBase = 'https://kolotw.github.io/kboardex/tasks/';
+
+async function fetchTaskText(taskID) {
+  const url = `${githubBase}${taskID}.csv`;
+  const res = await fetch(url);
+  const text = await res.text();
+  return text.split('\n').filter(line => line.trim()).slice(0, 10).join('\n'); // 前10句
+}
+
+const webTEMLinks = {
+  KS1: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Kboard&s=1&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  KS2: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Kboard&s=2&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  KS3: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Kboard&s=3&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  KS4: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Kboard&s=4&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  KS5: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Kboard&s=5&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  KS6: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Kboard&s=6&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  KS7: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Kboard&s=7&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  GS1: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Gboard&s=1&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  GS2: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Gboard&s=2&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  GS3: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Gboard&s=3&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  GS4: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Gboard&s=4&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  GS5: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Gboard&s=5&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  GS6: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Gboard&s=6&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff',
+  GS7: 'http://www.asarif.com/resources/WebTEM/#uo=ttf&e=kolo.tw@gmail.com&c=Gboard&s=7&p=10&kb=tf&st=fftffffff&m=ttttttttttttttttttttttttt&im=ffffffff&o=ffftffffftttffftff'
+};
+
+async function generateTasks() {
+  const id = document.getElementById('studentID').value.trim();
+  if (!id || isNaN(id)) return alert('請輸入正確學號！');
+
+  const isOdd = parseInt(id.slice(-1)) % 2 === 1;
+  const Afirst = isOdd ? 'Kboard' : 'Gboard';
+  const Bsecond = isOdd ? 'Gboard' : 'Kboard';
+  const allIndexes = [...Array(8).keys()];
+  const shuffled = allIndexes.sort(() => 0.5 - Math.random());
+  const block1 = Array(5).fill(shuffled[0]);
+  const block2 = Array(2).fill(shuffled.find(i => i !== shuffled[0]));
+  const taskIndexes = block1.concat(block2);
+  const fullSet = [
+    { board: Afirst, indexes: taskIndexes },
+    { board: Bsecond, indexes: taskIndexes }
+  ];
+
+  const container = document.getElementById('taskContainer');
+  container.innerHTML = '';
+
+  for (const set of fullSet) {
+    const subtitle = document.createElement('h2');
+    subtitle.textContent = `${set.board} 測驗`;
+    container.appendChild(subtitle);
+
+    for (let i = 0; i < 7; i++) {
+      const idx = set.indexes[i];
+      const taskNum = i + 1;
+      const taskID = tasks[idx];
+      const webID = (set.board === 'Kboard' ? 'KS' : 'GS') + taskNum;
+      const taskText = await fetchTaskText(taskID);
+      const webTEMURL = webTEMLinks[webID];
+
+      const div = document.createElement('div');
+      div.className = 'task';
+      div.innerHTML = `
+        <h3>第 ${taskNum} 題（${set.board}）</h3>
+        <p style="white-space: pre-wrap">${taskText}</p>
+        <button onclick="navigator.clipboard.writeText(\`${taskText}\`)">複製題目內容</button><br><br>
+        <a href="${webTEMURL}" target="_blank" class="link-btn">前往 WebTEM 測驗</a>
+      `;
+      container.appendChild(div);
+    }
+  }
+}
+</script>
+</body>
+</html>
