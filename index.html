@@ -12,6 +12,8 @@
     .task { margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
     .task h3 { margin-top: 0; font-size: 1.1rem; }
     .link-btn { margin-top: 5px; display: inline-block; background: #007bff; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 1rem; }
+	.link-btn.green { background: #28a745; }
+
   </style>
 </head>
 <body>
@@ -131,6 +133,23 @@ async function generateTasks() {
       div.appendChild(br);
       div.appendChild(br2);
       div.appendChild(link);
+
+// 加入問卷連結（第1、5、12題）
+if ([0, 4, 11].includes(i)) {
+  const surveyTitle = document.createElement('p');
+  surveyTitle.textContent = '請填寫問卷後休息一下';
+
+  const surveyLink = document.createElement('a');
+  surveyLink.href = 'https://forms.gle/zmAVXuD2QkpyfAy99';
+  surveyLink.target = '_blank';
+  surveyLink.className = 'link-btn green';
+  surveyLink.textContent = '前往問卷';
+
+  div.appendChild(document.createElement('br'));
+  div.appendChild(surveyTitle);
+  div.appendChild(surveyLink);
+}
+
 
       container.appendChild(div);
     }
