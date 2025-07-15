@@ -12,12 +12,10 @@
     .task { margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
     .task h3 { margin-top: 0; font-size: 1.1rem; }
     .link-btn { margin-top: 5px; display: inline-block; background: #007bff; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 1rem; }
-	.link-btn.green { background: #28a745; }
-
+    .link-btn.green { background: #28a745; }
   </style>
 </head>
 <body>
-
 您好，歡迎參加本研究。</br>
 
 本實驗是為了評估一種新的中文輸入方式「KBoard」(鍋注音)，並與現有常用輸入法（例如 Google Gboard）進行比較。</br>
@@ -46,8 +44,8 @@ Gboard 是大多數人平常使用的注音輸入法，您需要輸入每個字�
 
 	<a href = "https://kolotw.github.io/kboardex/APP/KBoard.apk"> KBoard 鍋注音 安裝連結(約15MB)</a> </br>
 	Gboard 為Google的鍵盤，請自行至 Google play下載</br>
-	
-  <h1>輸入學號以獲得實驗題目</h1>
+
+  <h1>輸入學號以獲得實驗題目(不要用LINE開啟，資料會流失)</h1>
   <input type="text" id="studentID" placeholder="請輸入學號">
   <button onclick="generateTasks()">產生題目</button>
   <div id="taskContainer"></div>
@@ -61,8 +59,7 @@ async function fetchTaskText(taskID) {
   const url = `${githubBase}${taskID}.csv`;
   const res = await fetch(url);
   const text = await res.text();
-  return text.split("\\n").filter(line => line.trim()).slice(0, 24).join("\\n");
-
+  return text.split("\n").filter(line => line.trim()).slice(0, 24).join("\n");
 }
 
 const taskTextCache = {};
@@ -85,21 +82,38 @@ async function generateTasks() {
   const id = document.getElementById('studentID').value.trim();
   if (!id || isNaN(id)) return alert('請輸入正確學號！');
 
-  const isOdd = parseInt(id.slice(-1)) % 2 === 1;
-  const Afirst = isOdd ? 'Kboard' : 'Gboard';
-  const Bsecond = isOdd ? 'Gboard' : 'Kboard';
+  const saved = localStorage.getItem('experiment_' + id);
+  let config;
 
-  let Agroup = getRandomElements(tasks, 1);
-  let Bgroup = getRandomElements(tasks, 1, Agroup);
-  while (Agroup[0] === Bgroup[0]) {
-    Bgroup = getRandomElements(tasks, 1, Agroup);
+  if (saved) {
+    config = JSON.parse(saved);
+  } else {
+    const isOdd = parseInt(id.slice(-1)) % 2 === 1;
+    const Afirst = isOdd ? 'Kboard' : 'Gboard';
+    const Bsecond = isOdd ? 'Gboard' : 'Kboard';
+
+    let Agroup = getRandomElements(tasks, 1);
+    let Bgroup = getRandomElements(tasks, 1, Agroup);
+    while (Agroup[0] === Bgroup[0]) {
+      Bgroup = getRandomElements(tasks, 1, Agroup);
+    }
+
+    const taskPlan = [];
+    for (let i = 0; i < 5; i++) taskPlan.push(Agroup[0]);
+    for (let i = 5; i < 7; i++) taskPlan.push(Bgroup[0]);
+    for (let i = 7; i < 9; i++) taskPlan.push(Agroup[0]);
+    for (let i = 9; i < 12; i++) taskPlan.push(Ctask);
+
+    config = {
+      Afirst,
+      Bsecond,
+      Agroup: Agroup[0],
+      Bgroup: Bgroup[0],
+      taskPlan,
+      done: {}
+    };
+    localStorage.setItem('experiment_' + id, JSON.stringify(config));
   }
-
-  const taskPlan = Array(12);
-  for (let i = 0; i < 5; i++) taskPlan[i] = Agroup[0];
-  for (let i = 5; i < 7; i++) taskPlan[i] = Bgroup[0];
-  for (let i = 7; i < 9; i++) taskPlan[i] = Agroup[0];
-  for (let i = 9; i < 12; i++) taskPlan[i] = Ctask;
 
   if (!taskTextCache[Ctask]) {
     taskTextCache[Ctask] = await fetchTaskText(Ctask);
@@ -108,7 +122,7 @@ async function generateTasks() {
   const container = document.getElementById('taskContainer');
   container.innerHTML = '';
 
-  const boardOrder = [Afirst, Bsecond];
+  const boardOrder = [config.Afirst, config.Bsecond];
 
   for (const board of boardOrder) {
     const subtitle = document.createElement('h2');
@@ -116,7 +130,7 @@ async function generateTasks() {
     container.appendChild(subtitle);
 
     for (let i = 0; i < 12; i++) {
-      const taskID = taskPlan[i];
+      const taskID = config.taskPlan[i];
       const taskNum = i + 1;
       const webID = (board[0] === 'K' ? 'K' : 'G') + 'S' + taskNum;
       const webTEMURL = webTEMLinks[webID];
@@ -140,11 +154,13 @@ async function generateTasks() {
       checkmark.textContent = ' ✅';
       checkmark.style.color = 'green';
       checkmark.style.marginLeft = '8px';
-      checkmark.style.visibility = 'hidden';
+      checkmark.style.visibility = config.done[webID] ? 'visible' : 'hidden';
+
       copyBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(taskText).then(() => {
           checkmark.style.visibility = 'visible';
-          
+          config.done[webID] = true;
+          localStorage.setItem('experiment_' + id, JSON.stringify(config));
         });
       });
 
@@ -164,22 +180,20 @@ async function generateTasks() {
       div.appendChild(br2);
       div.appendChild(link);
 
-// 加入問卷連結（第1、5、12題）
-if ([0, 4, 11].includes(i)) {
-  const surveyTitle = document.createElement('p');
-  surveyTitle.textContent = '請填寫問卷後休息一下';
+      if ([0, 4, 11].includes(i)) {
+        const surveyTitle = document.createElement('p');
+        surveyTitle.textContent = '請填寫問卷後休息一下';
 
-  const surveyLink = document.createElement('a');
-  surveyLink.href = 'https://forms.gle/zmAVXuD2QkpyfAy99';
-  surveyLink.target = '_blank';
-  surveyLink.className = 'link-btn green';
-  surveyLink.textContent = '前往問卷';
+        const surveyLink = document.createElement('a');
+        surveyLink.href = 'https://forms.gle/zmAVXuD2QkpyfAy99';
+        surveyLink.target = '_blank';
+        surveyLink.className = 'link-btn green';
+        surveyLink.textContent = '前往問卷';
 
-  div.appendChild(document.createElement('br'));
-  div.appendChild(surveyTitle);
-  div.appendChild(surveyLink);
-}
-
+        div.appendChild(document.createElement('br'));
+        div.appendChild(surveyTitle);
+        div.appendChild(surveyLink);
+      }
 
       container.appendChild(div);
     }
