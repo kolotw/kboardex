@@ -49,6 +49,12 @@ Gboard 是大多數人平常使用的注音輸入法，您需要輸入每個字�
   <input type="text" id="studentID" placeholder="請輸入學號">
   <button onclick="generateTasks()">產生題目</button>
   <div id="taskContainer"></div>
+	<div style="margin-top: 30px">
+	  <button onclick="resetProgress()" style="background: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 5px; font-size: 1rem;">
+		🔁 清除目前進度
+	  </button>
+	</div>
+
 
 <script>
 const tasks = ['G1','G2','G3','G4','G5','G6','G7','G8'];
@@ -199,6 +205,16 @@ async function generateTasks() {
     }
   }
 }
+function resetProgress() {
+  const id = document.getElementById('studentID').value.trim();
+  if (!id) return alert('請先輸入學號');
+  if (confirm('確定要清除目前這個學號的進度嗎？此動作無法復原')) {
+    localStorage.removeItem('experiment_' + id);
+    alert('進度已清除，請重新載入頁面或再次輸入學號。');
+    location.reload();
+  }
+}
+
 </script>
 </body>
 </html>
