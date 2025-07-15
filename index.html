@@ -2,14 +2,16 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>實驗題目分派頁面</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
-    input { padding: 8px; font-size: 16px; }
-    button { padding: 8px 12px; font-size: 16px; margin-left: 10px; }
-    .task { margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
-    .task h3 { margin-top: 0; }
-    .link-btn { margin-top: 5px; display: inline-block; background: #007bff; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px; }
+    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; font-size: 16px; }
+    input, button { font-size: 1rem; }
+    input { padding: 0.5em; }
+    button { padding: 0.5em 1em; margin-left: 10px; }
+    .task { margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
+    .task h3 { margin-top: 0; font-size: 1.1rem; }
+    .link-btn { margin-top: 5px; display: inline-block; background: #007bff; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 1rem; }
   </style>
 </head>
 <body>
@@ -26,7 +28,7 @@ async function fetchTaskText(taskID) {
   const url = `${githubBase}${taskID}.csv`;
   const res = await fetch(url);
   const text = await res.text();
-  return text.split('\n').filter(line => line.trim()).slice(0, 10).join('\\n'); // 取前10句
+  return text.split('\n').filter(line => line.trim()).slice(0, 10).join('\n'); // 前10句
 }
 
 const webTEMLinks = {
@@ -83,7 +85,7 @@ async function generateTasks() {
       div.className = 'task';
       div.innerHTML = `
         <h3>第 ${taskNum} 題（${set.board}）</h3>
-        <p>題目內容：${taskText}</p>
+        <p style="white-space: pre-wrap">${taskText}</p>
         <button onclick="navigator.clipboard.writeText(\`${taskText}\`)">複製題目內容</button><br><br>
         <a href="${webTEMURL}" target="_blank" class="link-btn">前往 WebTEM 測驗</a>
       `;
