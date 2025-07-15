@@ -56,8 +56,11 @@ async function generateTasks() {
   const Afirst = isOdd ? 'Kboard' : 'Gboard';
   const Bsecond = isOdd ? 'Gboard' : 'Kboard';
 
-  const Agroup = getRandomElements(tasks, 1);
-  const Bgroup = getRandomElements(tasks, 1, Agroup);
+  let Agroup = getRandomElements(tasks, 1);
+  let Bgroup = getRandomElements(tasks, 1, Agroup);
+  while (Agroup[0] === Bgroup[0]) {
+    Bgroup = getRandomElements(tasks, 1, Agroup);
+  }
 
   const taskPlan = Array(12);
   for (let i = 0; i < 5; i++) taskPlan[i] = Agroup[0];
