@@ -23,7 +23,23 @@
 Gboard 是大多數人平常使用的注音輸入法，您需要輸入每個字的注音，再逐一組成句子。而 KBoard 則採用不同的設計邏輯：您只需要用手指在手機螢幕上點選幾個注音，系統就會在學習後產生一整句話。不需要輸入每一個字。</br>
 
 <p>
+<p>
+在實驗中，我們會請您分別使用 Gboard 和 KBoard(依學號尾數的奇偶數決定順序) 來輸入指定的句子，並觀察輸入的速度與準確度。實驗設計的目的是比較兩種輸入方式在中文語句輸入上的效率與使用感受。</br>
 
+兩個鍵盤實驗的中間會請您填寫三次問卷，大約一分鐘。</br>
+如果感覺疲累，可以休息。但希望您可以在一週內完成本實驗。</br>
+
+您在實驗中的所有操作紀錄僅用於研究分析，不會記錄個人身份資訊，並將嚴格保密，僅限研究團隊使用。</br>
+您的參與對我們的研究非常重要，感謝您的協助！<p>
+
+專案負責人：佛光大學 資訊應用學系助理教授 郭龍  敬啟</br></br>
+
+<a href = "https://fgukolo.notion.site/2322dedc4f62805ebc75dd3571253c6d" target="_blank"> 詳細的實驗說明在這裡</a> <p>
+
+	<a href = "https://kolotw.github.io/kboardex/APP/KBoard.apk"> KBoard 鍋注音 安裝連結(約15MB)</a> </br>
+	Gboard 為Google的鍵盤，請自行至 Google play下載</br>
+	
+	<p>
 <h2>單音成句的學習方法</h2>
 如：「我想出去玩」</br>
 第1次學習：ㄨ -> 我；ㄒーㄤ -> 想 ；ㄔㄨ -> 出 ； ㄑ -> 去 ； ㄨㄢ -> 玩</br>
@@ -33,17 +49,6 @@ Gboard 是大多數人平常使用的注音輸入法，您需要輸入每個字�
 之後再打ㄨ，就會直接顯示「我想出去玩」的待選字</br>
 單音成句的上限是6個中文字。</br>
 <p>
-在實驗中，我們會請您分別使用 Gboard 和 KBoard(依學號尾數的奇偶數決定順序) 來輸入指定的句子，並觀察輸入的速度與準確度。實驗設計的目的是比較兩種輸入方式在中文語句輸入上的效率與使用感受。</br>
-
-兩個鍵盤實驗的中間會請您填寫三次問卷，大約一分鐘。</br>
-如果感覺疲累，可以休息。但希望您可以在一週內完成本實驗。</br>
-
-您在實驗中的所有操作紀錄僅用於研究分析，不會記錄個人身份資訊，並將嚴格保密，僅限研究團隊使用。</br>
-您的參與對我們的研究非常重要，感謝您的協助！</br></br>
-專案負責人：佛光大學 資訊應用學系助理教授 郭龍  敬啟</br></br>
-
-	<a href = "https://kolotw.github.io/kboardex/APP/KBoard.apk"> KBoard 鍋注音 安裝連結(約15MB)</a> </br>
-	Gboard 為Google的鍵盤，請自行至 Google play下載</br>
 
   <h1>輸入學號以獲得實驗題目(不要用LINE開啟，資料會流失)</h1>
   <input type="text" id="studentID" placeholder="請輸入學號">
@@ -204,6 +209,26 @@ async function generateTasks() {
       container.appendChild(div);
     }
   }
+  const finalSurvey = document.createElement('div');
+finalSurvey.className = 'task';
+
+const finalTitle = document.createElement('h3');
+finalTitle.textContent = '填寫總結問卷';
+
+const finalPara = document.createElement('p');
+finalPara.textContent = '本問卷請於完成全部輸入任務後填寫，請依據您對兩種鍵盤整體使用經驗進行評價。這將有助於我們了解使用者偏好與系統優化方向。';
+
+const finalLink = document.createElement('a');
+finalLink.href = 'https://forms.gle/5onZ82m48zaSeJL6A';
+finalLink.target = '_blank';
+finalLink.className = 'link-btn green';
+finalLink.textContent = '前往總結問卷';
+
+finalSurvey.appendChild(finalTitle);
+finalSurvey.appendChild(finalPara);
+finalSurvey.appendChild(finalLink);
+container.appendChild(finalSurvey);
+
 }
 function resetProgress() {
   const id = document.getElementById('studentID').value.trim();
